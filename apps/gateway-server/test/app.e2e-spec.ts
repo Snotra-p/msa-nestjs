@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
+
 import { GatewayServerModule } from './../src/gateway-server.module';
 
 describe('GatewayServerController (e2e)', () => {

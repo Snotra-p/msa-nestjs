@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
+
 import { AuthServerModule } from './../src/auth-server.module';
 
 describe('AuthServerController (e2e)', () => {
@@ -9,7 +10,9 @@ describe('AuthServerController (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AuthServerModule],
-    }).compile();
+    })
+
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();

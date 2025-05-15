@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+
 import { AuthServerService } from './auth-server.service';
 
 @Controller()

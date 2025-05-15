@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { GatewayServerController } from './gateway-server.controller';
 import { GatewayServerService } from './gateway-server.service';
 
@@ -11,7 +12,9 @@ describe('GatewayServerController', () => {
       providers: [GatewayServerService],
     }).compile();
 
-    gatewayServerController = app.get<GatewayServerController>(GatewayServerController);
+    gatewayServerController = app.get<GatewayServerController>(
+      GatewayServerController,
+    );
   });
 
   describe('root', () => {
