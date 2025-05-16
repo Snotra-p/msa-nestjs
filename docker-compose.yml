@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  auth-server:
+    build:
+      context: .
+      dockerfile: auth.Dockerfile
+      args:
+        - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    command: ["node", "dist/apps/auth-server/main"]
+
+  gateway-server:
+    build:
+      context: .
+      dockerfile: gate.Dockerfile
+      args:
+        - NODE_ENV=production
+    ports:
+      - "3001:3001"
+    command: ["node", "dist/apps/gateway-server/main"]
+
+  event-server:
+    build:
+      context: .
+      dockerfile: event.Dockerfile
+      args:
+        - NODE_ENV=production
+    ports:
+      - "3002:3002"
+    command: ["node", "dist/apps/event-server/main"]
