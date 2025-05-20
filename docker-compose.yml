@@ -9,7 +9,8 @@ services:
         - NODE_ENV=production
     ports:
       - "3000:3000"
-    command: ["node", "dist/apps/auth-server/main"]
+    command: ["node", "dist/apps/auth-server/src/main"]
+    container_name: auth
 
   gateway-server:
     build:
@@ -19,7 +20,8 @@ services:
         - NODE_ENV=production
     ports:
       - "3001:3001"
-    command: ["node", "dist/apps/gateway-server/main"]
+    command: ["node", "dist/apps/gateway-server/src/main"]
+    container_name: gateway
 
   event-server:
     build:
@@ -29,4 +31,15 @@ services:
         - NODE_ENV=production
     ports:
       - "3002:3002"
-    command: ["node", "dist/apps/event-server/main"]
+    command: ["node", "dist/apps/event-server/src/main"]
+    container_name: event
+  
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+      MONGO_INITDB_DATABASE: test
