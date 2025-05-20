@@ -4,10 +4,15 @@ import { SwaggerUiOptions } from '@nestjs/swagger/dist/interfaces/swagger-ui-opt
 
 // setGlobalErrorMap(AUTH_SERVER_ERROR);
 
-export const setup = (app: INestApplication) => {
+export const setup = (
+  app: INestApplication,
+  title: string,
+  describtion: string,
+) => {
   const swaggerBuilder = new DocumentBuilder()
-    .setTitle('Auth Server')
-    .setDescription('API description')
+    .setTitle(title)
+    .setDescription(describtion)
+    .addBearerAuth()
     .setVersion('1.0');
 
   const swaggerConfig = swaggerBuilder.build();

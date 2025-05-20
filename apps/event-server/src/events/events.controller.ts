@@ -13,6 +13,10 @@ import { EventsService } from './events.service';
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
+  @ApiResponseDocs({
+    type: EventDto,
+    isArray: true,
+  })
   @Get()
   async findAll(
     @Query() query: QueryEventInDto,

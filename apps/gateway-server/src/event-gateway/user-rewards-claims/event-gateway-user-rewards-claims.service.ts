@@ -42,7 +42,7 @@ export class EventGatewayUserRewardsClaimsService {
       {
         url: `/user-reward-claims/me`,
         method: 'GET',
-        body: {
+        params: {
           userId: id,
         },
       },
@@ -66,8 +66,11 @@ export class EventGatewayUserRewardsClaimsService {
   async approve(id: string): Promise<ResponseEntity<UserRewardsClaimDto>> {
     return await this.httpProvider.request<UserRewardsClaimDto>(
       {
-        url: `/user-reward-claims/${id}/approve`,
+        url: `/user-reward-claims/approve`,
         method: 'PATCH',
+        body: {
+          id,
+        },
       },
       HTTP_SERVICE_ERROR_KEY.EVENT_SERVER_APPROVE_REWARD,
     );
@@ -76,8 +79,11 @@ export class EventGatewayUserRewardsClaimsService {
   async reject(id: string): Promise<ResponseEntity<UserRewardsClaimDto>> {
     return await this.httpProvider.request<UserRewardsClaimDto>(
       {
-        url: `/user-reward-claims/${id}/reject`,
+        url: `/user-reward-claims/reject`,
         method: 'PATCH',
+        body: {
+          id,
+        },
       },
       HTTP_SERVICE_ERROR_KEY.EVENT_SERVER_REJECT_REWARD,
     );

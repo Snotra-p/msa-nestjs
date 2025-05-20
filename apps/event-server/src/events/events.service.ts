@@ -6,7 +6,7 @@ import { SortEventInDto } from '@libs/shared/event-server/event/dto/sort-event-i
 import { EventDto } from '@libs/shared/event-server/event/dto/event.dto';
 
 import { EventRepository } from './infrastructure/persistence/event.repository';
-import { Event } from './domain/event';
+
 @Injectable()
 export class EventsService {
   constructor(private readonly eventRepository: EventRepository) {}

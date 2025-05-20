@@ -10,7 +10,7 @@ import { GatewayServerModule } from './gateway-server.module';
 async function bootstrap() {
   const app = await NestFactory.create(GatewayServerModule);
 
-  setup(app);
+  setup(app, 'Gateway Server', 'Gateway Server API');
 
   await app.listen(process.env.port ?? 3001);
 }

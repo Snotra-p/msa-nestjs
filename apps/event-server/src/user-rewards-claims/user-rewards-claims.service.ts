@@ -21,11 +21,11 @@ export class UserRewardsClaimsService {
     private readonly userEventRepository: UserEventRepository,
   ) {}
 
-  async findOne(userId: string): Promise<UserRewardsClaimDto> {
-    const userRewardClaim =
-      await this.userRewardClaimRepository.findById(userId);
+  async findByUserId(userId: string): Promise<UserRewardsClaimDto[]> {
+    const userRewardClaims =
+      await this.userRewardClaimRepository.findByUserId(userId);
 
-    return UserRewardsClaimDto.fromEntity(userRewardClaim);
+    return UserRewardsClaimDto.fromEntities(userRewardClaims);
   }
 
   async findManyWithPagination(
@@ -141,6 +141,16 @@ export class UserRewardsClaimsService {
         processedAt: new Date(),
       },
     );
+
+    const rewards = await this.rewardsRepository.findById(
+      userRewardClaim.rewardsId,
+    );
+
+    if (!rewards) {
+      throw new EventServerException(EVENT_SERVER_ERROR_KEY.REWARD_NOT_FOUND);
+    }
+
+    this.processReward(userRewardClaim.userId, userRewardClaim.id, rewards);
 
     return UserRewardsClaimDto.fromEntity(updatedUserRewardClaim);
   }

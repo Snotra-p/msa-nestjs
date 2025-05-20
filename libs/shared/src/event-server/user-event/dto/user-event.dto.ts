@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from '@libs/core/dto/base.dto';
 import { Exclude } from 'class-transformer';
 import { getSchemaPath } from '@nestjs/swagger/dist/utils/get-schema-path.util';
@@ -8,6 +8,7 @@ import {
   EVENT_CONTENT_DTO_LIST,
 } from '../../event/dto/event-contents.dto';
 
+@ApiExtraModels(...EVENT_CONTENT_DTO_LIST)
 export class UserEventDto extends BaseDto {
   @ApiProperty()
   id: string;
@@ -19,7 +20,6 @@ export class UserEventDto extends BaseDto {
   eventId: string;
 
   @ApiProperty({
-    type: 'array',
     oneOf: EVENT_CONTENT_DTO_LIST.map((DtoClass) => ({
       $ref: getSchemaPath(DtoClass),
     })),

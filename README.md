@@ -1,5 +1,16 @@
 
 1. 프로젝트 개요
+## 구조
+/
+├── apps/
+│   ├── auth-server/
+│   ├── gateway-server/
+│   └── event-server/
+├── libs/
+│   ├── core/
+│   └── shared/
+└── docker-compose.yml
+
 MSA 기반의 이벤트 / 보상 시스템
 ## ⚙️ 기술 스택
 
@@ -10,12 +21,141 @@ MSA 기반의 이벤트 / 보상 시스템
 - **배포/실행**: Docker + docker-compose
 - **언어**: TypeScript
 
+## 실행 방법
+docker compose up -d
+
 2. 기능 상세(api)
+auth-server(3000 port)
+gateway-server(3001 port)
+event-server(3002 port) /api-docs 의 swagger을 통해 테스트 가능합니다.
 
-gateway-server(3001 port) /api-docs 의 swagger을 통해 확인 가능합니다.
+복수 스키마를 가지는 필드는 oneOf로 표시
+디버깅 편의를 위해 요구사항에 나와있지 않은 조회 api는 따로 보안 인증을 하지 않았습니다.
+
+## API Endpoints
+
+### Auth API
+
+| Method | Path            | Description                                   |
+|--------|-----------------|-----------------------------------------------|
+| POST   | /auth/login     | 로그인, Access/Refresh 토큰 발급              |
+| POST   | /auth/refresh   | 토큰 갱신, Access/Refresh 토큰 재발급         |
+| POST   | /auth/logout    | 로그아웃                                      |
+| POST   | /auth/users     | 유저 생성 (테스트 편의상 인증 없음)           |
+
+---
+
+### Event Gateway API
+
+#### Event
+
+| Method | Path                      | Description                   |
+|--------|---------------------------|-------------------------------|
+| GET    | /event-gateway/event      | 이벤트 목록/상세 조회         |
+| POST   | /event-gateway/event      | 이벤트 생성                   |
+
+#### Rewards
+
+| Method | Path                      | Description                   |
+|--------|---------------------------|-------------------------------|
+| GET    | /event-gateway/rewards    | 보상 목록/상세 조회           |
+| POST   | /event-gateway/rewards    | 보상 등록                     |
+
+#### User Events --- 유저 이벤트 진행 관련 조건 검증을 위한 스키마 및 api
+
+| Method | Path                                   | Description                   |
+|--------|----------------------------------------|-------------------------------|
+| GET    | /event-gateway/user-events             | 유저 이벤트 내역 조회         |
+| POST   | /event-gateway/user-events/process     | 유저 이벤트 처리 (조건 저장)  |
+
+DTO특이사항 : 현재 /event-gateway/user-events/process 의 value는 퀘스트 조건일때만 임의의 questId로만 쓰입니다.
+
+#### User Rewards Claims
+
+| Method | Path                                             | Description                           |
+|--------|--------------------------------------------------|---------------------------------------|
+| GET    | /event-gateway/user-reward-claims                | 전체 유저 보상 요청 이력 조회         |
+| POST   | /event-gateway/user-reward-claims                | 유저 보상 요청                        |
+| GET    | /event-gateway/user-reward-claims/me             | (본인) 보상 요청 이력 조회            |
+| PATCH  | /event-gateway/user-reward-claims/{id}/approve   | 보상 요청 승인 (관리자/운영자)        |
+| PATCH  | /event-gateway/user-reward-claims/{id}/reject    | 보상 요청 거절 (관리자/운영자)        |
 
 
+테스트 시나리오 1
+POST /auth/users 로 ADMIN 유저 생성
+POST /auth/login 진행, 받은 토큰 오른쪽 상단 자물쇠 authroize를 눌러 리프레시 토큰 세팅
+POST /auth/refresh 호출, 새로 받은 리프레시 토큰 세팅
+POST /auth/logout  호출
+POST /auth/refresh 호출하면 로그아웃으로 인한 세션 만료
 
+POST /event-gateway/event 호출
+예시 body data
+{
+  "name": "이벤트1",
+  "activate": true,
+  "description": "이벤트입니다",
+  "startedAt": "2025-05-11T06:09:53.361Z",
+  "endedAt": "2025-05-25T06:09:53.361Z",
+  "userId": "682c1aaa6fb6c7f00ae8ae33",
+  "requireApproval": true,
+  "contents": [
+    {
+      "type": "attendance",
+      "count": 1
+    }
+  ]
+}
+
+POST /event-gateway/rewards 호출
+예시 body data
+{
+  "eventId": "682c1d0e2a31d50249631487",
+  "userId": "682c1aaa6fb6c7f00ae8ae33",
+  "contents": [
+    {
+      "type": "item",
+      "itemName": "슈퍼박스",
+      "quantity": 2
+    },
+
+    {
+      "type": "item",
+      "itemName": "슈퍼박스2",
+      "quantity": 2
+    },
+
+    {
+      "type": "item",
+      "itemName": "슈퍼박스3",
+      "quantity": 2
+    }
+  ]
+}
+
+POST /event-gateway/user-events/process 호출
+예시 데이터
+{
+  "eventType": "attendance",
+  "userId": "682c1aaa6fb6c7f00ae8ae33",
+  "count": 1
+}
+
+
+POST /event-gateway/user-reward-claims
+예시 데이터
+{
+  "userId": "682c1aaa6fb6c7f00ae8ae33",
+  "rewardsId": "682c1d712a31d5024963148c"
+}
+
+requireApproval에 따라 processing, 혹은 pending
+
+GET /event-gateway/user-reward-claims/me 결과 확인
+
+POST /event-gateway/user-reward-claims/{id}/approve 결과 확인
+
+
+복수 조건, 복수 이벤트에 대한 유저이벤트조건 달성 갱신 확인 가능
 
 
 
@@ -43,12 +183,9 @@ RS256 비대칭키를 통해 auth 서버에서는 시크릿키를 통한 발급�
 gateway 혹은 그외 서버에서는 공개키를 통한 인증을 하도록 구성
 무분별한 토큰 발급 제한을 위해 refresh시 hash 검증 및 교체, session 데이터 유지하도록 설계, refresh시에만 DB 갱신
 
-
 4) 스키마리스 데이터베이스 활용하면서도 정적 스키마 보장
 이벤트와 보상 스키마를 자유롭게 변형 / 추가 가능한 데이터구조를 적용
 정적인 타입을 Union조건을 주어서 타입에 따라 처리 discrimitor 적용을 통해 스키마 정합성 보장
-embed 형태 vs reference 형태 중 고민
-
 
 5) 보상 구조 설계
 마스터 데이터 아이디를 기준으로 설계 하지 않고 embed형태로 처리
@@ -56,12 +193,16 @@ embed 형태 vs reference 형태 중 고민
 
 6) 중복 보상 방지
 msa구조상으로 보상을 지급을 처리하는 임의의 별도 서버가 있다고 가정하고, 해당 서버에서는 userId, eventId를 복합키로 가지고 처리하며 중복지급을 DB를 통해 방지합니다. 
-따라서 지급 요청 내역의 eventId가 중복되지 않게만 하면 추가적인 다른 처리할 필요 없다고 생각했습니다.
+따라서 지급 요청 내역의 eventId가 중복되어 생성되지 않는다면 하면 추가적인 다른 처리할 필요 없다고 생각했습니다.
 보상 지급완료는 최종적으로는 콜백을 통해 최종 status를 업데이트 합니다. 
-대신, request가 실패하는 경우에 대비하여 배치서버를 통해 30초~1분이상 pending status 상태의 요청의 경우 재시도(혹은, 지급요청시 pending인 경우 재시도) 하는 추가 로직이 필요합니다.
+request가 실패하는 경우에 대비하여 배치서버를 통해 30초~1분이상 processing status 상태의 요청의 경우 재시도(혹은, 지급요청시 processing 경우 재시도) 하는 추가 로직이 필요합니다.
 
-claim 생성(pending/processing) => claim 연관 유저 보상지급 이벤트 발행, 
+만약 중복 방지 책임이 이벤트 서버에 있다고 하면
+분산락 솔루션을 이용하거나 replication과 함께 트랜잭션+낙관적 락을 사용 할 수 있습니다.
 
+시나리오
+조건확인 => claim 생성(processing) => claim 연관 유저 보상지급 이벤트 발행 => 콜백 으로 status complete 업데이트
+조건확인 => claim 생성(processing) => claim 연관 유저 보상지급 이벤트 발행 => 실패 => 배치서버로 재시도 => 콜백
 
 
 7) 이벤트 설계

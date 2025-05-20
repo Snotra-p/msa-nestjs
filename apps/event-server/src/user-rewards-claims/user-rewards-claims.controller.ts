@@ -6,7 +6,6 @@ import {
   Query,
   HttpStatus,
   Patch,
-  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiResponseDocs } from '@libs/core/decorator/api-response-docs.decorator';
@@ -14,6 +13,7 @@ import { ResponseEntity } from '@libs/core/dto/response-entity';
 import { CreateUserRewardsClaimInDto } from '@libs/shared/event-server/user-rewards-claims/dto/create-user-rewards-claim-in.dto';
 import { UserRewardsClaimsQueryInDto } from '@libs/shared/event-server/user-rewards-claims/dto/query-user-rewards-claim-in.dto';
 import { UserRewardsClaimDto } from '@libs/shared/event-server/user-rewards-claims/dto/user-rewards-claim.dto';
+import { UserRewardsClaimInDto } from '@libs/shared/event-server/user-rewards-claims/dto/user-rewards-claim-in.dto';
 
 import { UserRewardsClaimsService } from './user-rewards-claims.service';
 import { UserRewardsClaim } from './domain/user-rewards-claim';
@@ -35,11 +35,11 @@ export class UserRewardsClaimsController {
   @Get('me')
   async findOne(
     @Query('userId') userId: string,
-  ): Promise<ResponseEntity<UserRewardsClaim>> {
-    const userRewardClaims =
-      await this.userRewardsClaimsService.findOne(userId);
+  ): Promise<ResponseEntity<UserRewardsClaim[]>> {
+    const userRewardClaimss =
+      await this.userRewardsClaimsService.findByUserId(userId);
 
-    return ResponseEntity.ok().body(userRewardClaims);
+    return ResponseEntity.ok().body(userRewardClaimss);
   }
 
   @ApiResponseDocs({
@@ -74,11 +74,11 @@ export class UserRewardsClaimsController {
   @ApiResponseDocs({
     type: UserRewardsClaimDto,
   })
-  @Patch(':id/approve')
+  @Patch('approve')
   async approve(
-    @Param('id') id: string,
+    @Body() dto: UserRewardsClaimInDto,
   ): Promise<ResponseEntity<UserRewardsClaimDto>> {
-    const userRewardClaim = await this.userRewardsClaimsService.approve(id);
+    const userRewardClaim = await this.userRewardsClaimsService.approve(dto.id);
 
     return ResponseEntity.ok().body(userRewardClaim);
   }
@@ -86,11 +86,11 @@ export class UserRewardsClaimsController {
   @ApiResponseDocs({
     type: UserRewardsClaimDto,
   })
-  @Patch(':id/reject')
+  @Patch('reject')
   async reject(
-    @Param('id') id: string,
+    @Body() dto: UserRewardsClaimInDto,
   ): Promise<ResponseEntity<UserRewardsClaimDto>> {
-    const userRewardClaim = await this.userRewardsClaimsService.reject(id);
+    const userRewardClaim = await this.userRewardsClaimsService.reject(dto.id);
 
     return ResponseEntity.ok().body(userRewardClaim);
   }

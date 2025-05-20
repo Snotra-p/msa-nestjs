@@ -40,6 +40,15 @@ export class UserRewardClaimMongooseRepository
       : null;
   }
 
+  async findByUserId(userId: string): Promise<UserRewardsClaim[]> {
+    const userRewardClaims = await this.userRewardClaimModel.find({
+      userId,
+    });
+    return userRewardClaims.map((userRewardClaim) =>
+      UserRewardClaimMapper.toDomain(userRewardClaim),
+    );
+  }
+
   async findByUserIdAndEventId(
     userId: string,
     eventId: string,

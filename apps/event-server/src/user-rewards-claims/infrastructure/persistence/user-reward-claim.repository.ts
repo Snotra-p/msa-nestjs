@@ -17,6 +17,8 @@ export abstract class UserRewardClaimRepository {
 
   abstract findById(id: string): Promise<NullableType<UserRewardsClaim>>;
 
+  abstract findByUserId(userId: string): Promise<UserRewardsClaim[]>;
+
   abstract findByUserIdAndEventId(
     userId: string,
     eventId: string,

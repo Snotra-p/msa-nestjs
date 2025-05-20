@@ -11,7 +11,7 @@ import { EventServerModule } from './event-server.module';
 async function bootstrap() {
   const app = await NestFactory.create(EventServerModule);
 
-  setup(app);
+  setup(app, 'Event Server', 'Event Server API');
 
   await app.listen(process.env.PORT ?? 3002);
 }

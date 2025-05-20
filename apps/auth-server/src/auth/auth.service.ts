@@ -80,9 +80,7 @@ export class AuthService {
     });
   }
 
-  async refreshToken(
-    refreshInDto: RefreshInDto,
-  ): Promise<Omit<LoginOutDto, 'user'>> {
+  async refreshToken(refreshInDto: RefreshInDto): Promise<RefreshOutDto> {
     const session = await this.sessionProvider.findById(refreshInDto.sessionId);
 
     if (!session) {
